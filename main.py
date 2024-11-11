@@ -16,12 +16,12 @@ with open('characterizationflight.csv', 'r') as f:
         # Stop at apogee
         if time > 3.2 and burnend == 0:
             burnend = len(data)
-        if time > 7:
-           break
+        #if time > 7:
+        #   break
 data = data[1:]
 
-# Process noise for accel: 10.05505052915663, calculated by np.mean(data[:, 3] + 9.81)
-#aQ = 10.05505052915663
+# Process noise for accel: 0.25, calculated by np.mean(data[:, 3])
+print(np.mean(data[:, 3]), np.std(data[:, 3]), np.mean(abs(data[:, 3])))
 aQ = 0.25
 
 # Kalman filter initialization
@@ -38,7 +38,7 @@ C = np.array([
 
 dt = 0.01
 Q = np.array([
-    [0.5*dt**2*aQ**2, 0, 0],
+    [0.5*dt**2*aQ**2 + dt*aQ**2, 0, 0],
     [0, dt*aQ**2, 0],
     [0, 0, aQ**2]
 ])
