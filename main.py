@@ -50,7 +50,7 @@ P = np.array([
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0]
-]) # Initial covariance matrix
+]) # Initial covariance matrix, its a diagonal matrix but all the diagonals are 0 because the initial state is known
 x = np.array([[0], [0], [-9.81]]) # Initial state
 
 # Update
