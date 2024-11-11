@@ -22,7 +22,7 @@ data = data[1:]
 
 # Process noise for accel: 10.05505052915663, calculated by np.mean(data[:, 3] + 9.81)
 #aQ = 10.05505052915663
-aQ = 0.01
+aQ = 0.25
 
 # Kalman filter initialization
 def calcA(dt):
@@ -38,18 +38,18 @@ C = np.array([
 
 dt = 0.01
 Q = np.array([
-    [0.5*dt**2*aQ, 0, 0],
-    [0, dt*aQ, 0],
-    [0, 0, aQ]
+    [0.5*dt**2*aQ**2, 0, 0],
+    [0, dt*aQ**2, 0],
+    [0, 0, aQ**2]
 ])
 R = np.array([
     [1, 0],
     [0, 0.01]
 ])
 P = np.array([
-    [0.01, 0, 0],
-    [0, 0.01, 0],
-    [0, 0, 0.01]
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0]
 ]) # Initial covariance matrix
 x = np.array([[0], [0], [-9.81]]) # Initial state
 
