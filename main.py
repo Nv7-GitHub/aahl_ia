@@ -1,8 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import csv
-
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 from predict import getApogee
+
+STOP_APOGEE = True
 
 # Read flight data
 data = np.array([[0, 0, 0, 0, 0]]) # t, x, v, a, predicted alt
@@ -16,8 +19,10 @@ with open('characterizationflight.csv', 'r') as f:
         # Stop at apogee
         if time > 3.2 and burnend == 0:
             burnend = len(data)
-        #if time > 7:
-        #   break
+        if time > 7 and STOP_APOGEE:
+           break
+        elif time > 37 and not STOP_APOGEE:
+            break
 data = data[1:]
 
 # Process noise for accel: 0.25, calculated by np.mean(data[:, 3])
@@ -69,7 +74,40 @@ for i in range(1, len(data)):
     out = np.append(out, [[data[i][0], x[0][0], x[1][0], x[2][0], getApogee(data[i][0], x[0][0], x[1][0], x[2][0])]], axis=0)
 out = out[1:]
 
+# Convert data to dataframe
+df = pd.DataFrame(data, columns=['Time (s)', 'Position (m)', 'Velocity (m/s)', 'Acceleration (m/s/s)', 'Alt Predicted'])
+df_out = pd.DataFrame(out, columns=['Time (s)', 'Position (m)', 'Velocity (m/s)', 'Acceleration (m/s/s)', 'Alt Predicted'])
 
+# Create separate plots for position, velocity, and acceleration, overlaying df and df_out, and saving to png
+plt.figure(dpi=400) # Increase dpi for better quality
+sns.set_theme(style='darkgrid')
+sns.lineplot(data=df, x='Time (s)', y='Position (m)', label='Complementary Filter')
+sns.lineplot(data=df_out, x='Time (s)', y='Position (m)', label='Kalman Filter')
+plt.xlabel('Time (s)')
+plt.ylabel('Position (m)')
+plt.savefig('graphs/position.png')
+plt.clf()
+
+plt.figure(dpi=400) # Increase dpi for better quality
+sns.set_theme(style='darkgrid')
+sns.lineplot(data=df, x='Time (s)', y='Velocity (m/s)', label='Euler Integration')
+sns.lineplot(data=df_out, x='Time (s)', y='Velocity (m/s)', label='Kalman Filter')
+plt.xlabel('Time (s)')
+plt.ylabel('Velocity (m/s)')
+plt.savefig('graphs/velocity.png')
+plt.clf()
+
+plt.figure(dpi=400) # Increase dpi for better quality
+sns.set_theme(style='darkgrid')
+sns.lineplot(data=df, x='Time (s)', y='Acceleration (m/s/s)', label='Measurement')
+sns.lineplot(data=df_out, x='Time (s)', y='Acceleration (m/s/s)', label='Kalman Filter')
+plt.xlabel('Time (s)')
+plt.ylabel('Acceleration (m/s/s)')
+plt.savefig('graphs/acceleration.png')
+plt.clf()
+
+
+"""
 # Plot
 fig, axs = plt.subplots(4)
 fig.suptitle('Flight data')
@@ -102,3 +140,4 @@ print(f"Regular pre mean error: {rmse(data[burnend:,4])}")
 print(f"Kalman pre mean error: {rmse(out[burnend:,4])}")
 
 plt.show()
+"""
